@@ -19,7 +19,7 @@ function setup() {
 
         _.each(_.range(baseNumber * i), function(value, j) {
             var degree = 360 / (baseNumber * i) * j;
-            circles.push(new Circle(circleSize, radius, degree, speed, i));
+            circles.push(new Circle(radius, degree, speed, i));
         });
     });
 
@@ -32,21 +32,36 @@ function draw() {
     background(255); //再描画
 
     _.each(circles, function(circle) {
-        circle.move();
+        circle.drow();
     });
 }
 
 
 //円のクラス
-function Circle(size, radius, degree, speed, index) {
+function Circle( radius, degree, speed, index) {
     this.x = width / 2;
     this.y = height / 2;
     this.degree = degree;
     this.rad = 0;
     this.radius = radius;
-    this.size = size;
+    this.size = 0;
     this.isScaleUp = false;
-		this.count = 0;
+    this.count = 0;
+
+		//円を描画
+		this.drow = function() {
+
+				//インスタンスを回転
+				this.move();
+
+				//インスタンスを拡大
+				this.scale();
+
+				noStroke();
+				fill('#000000');
+				//x,yをもとに座表示セット
+				ellipse(this.x, this.y, this.size, this.size);
+		}
 
     this.move = function() {
         //角度を増やす
@@ -57,30 +72,28 @@ function Circle(size, radius, degree, speed, index) {
         this.x = width / 2 + this.radius * Math.cos(this.rad);
         //y座標
         this.y = height / 2 + this.radius * Math.sin(this.rad);
-
-				this.count += 0.1;
-
-				if(this.count > index){
-						this.scale();
-				}
-
-        noStroke();
-        fill('#000000');
-        //x,yをもとに座表示セット
-        ellipse(this.x, this.y, this.size, this.size);
     }
 
-		this.scale = function(){
-			if (this.size <= 0) {
-					this.isScaleUp = true;
-			} else if (this.size >= circleSize) {
-					this.isScaleUp = false;
-			}
+    this.scale = function() {
 
-			if (this.isScaleUp === true) {
-					this.size += 0.5;
-			} else {
-					this.size -= 0.5;
-			}
-		}
+        this.count += 0.1;
+
+				//拡大のタイミングをずらすためにインスタンスのインデックスを使って制御
+        if (this.count < index) {
+            return false;
+        }
+
+        if (this.size <= 0) {
+            this.isScaleUp = true;
+        } else if (this.size >= circleSize) {
+            this.isScaleUp = false;
+        }
+
+        if (this.isScaleUp === true) {
+            this.size += 0.5;
+        } else {
+            this.size -= 0.5;
+        }
+    }
+
 }
